@@ -49,6 +49,10 @@ func main() {
 		}
 	}
 
+	percentage := (float32(score) / float32(len(dataSet))) * 100
+
 	fmt.Printf("Correct prediction: %d out of %d", score, len(dataSet))
+	fmt.Println()
+	fmt.Printf("Accuracy: %.2f%%", percentage)
 	fmt.Println()
 }
