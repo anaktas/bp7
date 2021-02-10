@@ -94,9 +94,9 @@ func (n *Network) ForwardPropagate(row []float32) []float32 {
 		newOutputLayerInputs = append(newOutputLayerInputs, output)
 	}
 
-	inputs = newOutputLayerInputs
+	finalOutput := newOutputLayerInputs
 
-	return inputs
+	return finalOutput
 }
 
 // Propagates backwards the calculated error of the final output
