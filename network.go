@@ -433,7 +433,7 @@ func ForwardPropagate(n *Network, row []float32) []float32 {
 	hiddenNeurons := hiddenLayer.Neurons
 
 	for i := 0; i < len(hiddenNeurons); i++ {
-		activation := Activate(hiddenNeurons[i].Weights, inputs)
+		activation := Activate(&hiddenNeurons[i], inputs)
 		output := Output(activation)
 
 		hiddenNeurons[i].Output = output
@@ -448,7 +448,7 @@ func ForwardPropagate(n *Network, row []float32) []float32 {
 	outputNeurons := outputLayer.Neurons
 
 	for j := 0; j < len(outputNeurons); j++ {
-		activation := Activate(outputNeurons[j].Weights, inputs)
+		activation := Activate(&outputNeurons[j], inputs)
 		output := Output(activation)
 
 		outputNeurons[j].Output = output

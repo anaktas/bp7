@@ -52,16 +52,17 @@ func (n *Neuron) Activate(inputs []float32) float32 {
 // activation of the neuron. The activation of 
 // a neuron is the sum of the multiplication of
 // each inout with each weight.
+// -Input n: A neuron struct.
 // -Input inputs: An array of the inouts.
-func Activate(weights []float32, inputs []float32) float32 {
-	activation := weights[len(weights) - 1]
+func Activate(n *Neuron, inputs []float32) float32 {
+	activation := n.Weights[len(n.Weights) - 1]
 
-	for i := 0; i < len(weights); i++ {
+	for i := 0; i < len(n.Weights); i++ {
 		if i > (len(inputs) - 1) {
 			break
 		}
 
-		activation += weights[i] * inputs[i]
+		activation += n.Weights[i] * inputs[i]
 	}
 
 	return activation
