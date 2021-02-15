@@ -33,28 +33,8 @@ type Neuron struct {
 // activation of the neuron. The activation of 
 // a neuron is the sum of the multiplication of
 // each inout with each weight.
-// -Input inputs: An array of the inouts.
-func (n *Neuron) Activate(inputs []float32) float32 {
-	activation := n.Weights[len(n.Weights) - 1]
-
-	for i := 0; i < len(n.Weights); i++ {
-		if i > (len(inputs) - 1) {
-			break
-		}
-
-		activation += n.Weights[i] * inputs[i]
-	}
-
-	return activation
-}
-
-// The standalone function implementation for the 
-// activation of the neuron. The activation of 
-// a neuron is the sum of the multiplication of
-// each inout with each weight.
-// -Input n: A neuron struct.
-// -Input inputs: An array of the inouts.
-func Activate(n *Neuron, inputs []float32) float32 {
+// -Input inputs: An array of the inputs.
+func (n *Neuron) activate(inputs []float32) float32 {
 	activation := n.Weights[len(n.Weights) - 1]
 
 	for i := 0; i < len(n.Weights); i++ {
@@ -77,6 +57,25 @@ func Activate(n *Neuron, inputs []float32) float32 {
 //
 //
 // output = 1 / (1 + e^(-activation))
-func Output(activation float32) float32 {
+func sigmoid(activation float32) float32 {
 	return (float32) (1.0 / (1.0 + math.Exp(-1 * float64(activation))))
+}
+
+// The final neuron output. The output of the activation
+// function is the input of the sigmoid function. The final
+// output is the actual output of the neuron.
+// --Input inputs: An array of the inputs.
+func (n *Neuron) Transfer(inputs []float32) float32 {
+	activation := n.activate(inputs)
+	return sigmoid(activation)
+}
+
+// The final neuron output. The output of the activation
+// function is the input of the sigmoid function. The final
+// output is the actual output of the neuron.
+// -Input n: A neuron pointer.
+// -Input inputs: An array of the inputs.
+func Transfer(n *Neuron, inputs []float32) float32 {
+	activation := n.activate(inputs)
+	return sigmoid(activation)
 }

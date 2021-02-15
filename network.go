@@ -60,7 +60,7 @@ func (n *Network) Init(inputNeuronsCount int, hiddenLayerNeuronsCount int, outpu
 // output vector of the network.
 // -Input row: An entry row of the dataset array.
 // -Output: The final output of the network.
-func (n *Network) ForwardPropagate(row []float32) []float32 {
+func (n *Network) forwardPropagate(row []float32) []float32 {
 	inputs := row
 
 	hiddenLayer := n.HiddenLayer
@@ -71,8 +71,7 @@ func (n *Network) ForwardPropagate(row []float32) []float32 {
 	hiddenNeurons := hiddenLayer.Neurons
 
 	for i := 0; i < len(hiddenNeurons); i++ {
-		activation := hiddenNeurons[i].Activate(inputs)
-		output := Output(activation)
+		output := hiddenNeurons[i].Transfer(inputs)
 
 		hiddenNeurons[i].Output = output
 
@@ -86,8 +85,7 @@ func (n *Network) ForwardPropagate(row []float32) []float32 {
 	outputNeurons := outputLayer.Neurons
 
 	for j := 0; j < len(outputNeurons); j++ {
-		activation := outputNeurons[j].Activate(inputs)
-		output := Output(activation)
+		output := outputNeurons[j].Transfer(inputs)
 
 		outputNeurons[j].Output = output
 
@@ -102,7 +100,7 @@ func (n *Network) ForwardPropagate(row []float32) []float32 {
 // Propagates backwards the calculated error of the final output
 // in order let each network layer to update it's neuron weights.
 // -Input expected: Is the array of the expected output values.
-func (n *Network) BackPropagate(expected []float32) {
+func (n *Network) backPropagate(expected []float32) {
 	// First we calculate the error of the output layer.
 	outputLayerError := make([]float32, 0)
 
@@ -113,7 +111,7 @@ func (n *Network) BackPropagate(expected []float32) {
 
 	// We assign each error to the delta variable of each output neuron.
 	for i := 0; i < len(n.OutputLayer.Neurons); i++ {
-		n.OutputLayer.Neurons[i].Delta = outputLayerError[i] * OutputDerivative(n.OutputLayer.Neurons[i].Output)
+		n.OutputLayer.Neurons[i].Delta = outputLayerError[i] * outputDerivative(n.OutputLayer.Neurons[i].Output)
 	}
 
 	// We propagate the error to the hidden layer.
@@ -132,14 +130,14 @@ func (n *Network) BackPropagate(expected []float32) {
 
 	// We assign each error to the delta variable of each hidden layer neuron.
 	for i := 0; i < len(n.HiddenLayer.Neurons); i++ {
-		n.HiddenLayer.Neurons[i].Delta = hiddenLayerErrors[i] * OutputDerivative(n.HiddenLayer.Neurons[i].Output)
+		n.HiddenLayer.Neurons[i].Delta = hiddenLayerErrors[i] * outputDerivative(n.HiddenLayer.Neurons[i].Output)
 	}
 }
 
 // Updates each weight of each neuron of each layer during the training iteration.
 // -Input row: The training data set entry row.
 // -Input learingRate: The rate of the neuron weight adaptation.
-func (n *Network) UpdateWeights(row []float32, learningRate float32) {
+func (n *Network) updateWeights(row []float32, learningRate float32) {
 	// We are dropping out the last value which is the classification value.
 	inputs := row[0:(len(row) - 1)]
 
@@ -181,7 +179,7 @@ func (n *Network) Train(trainSet [][]float32, learningRate float32, epochs int, 
 		for j := 0; j < len(trainSet); j++ {
 			row := trainSet[j]
 			// Forward propagating the output.
-			outputs := n.ForwardPropagate(row)
+			outputs := n.forwardPropagate(row)
 
 			// The expected array contains only zeros.
 			expected := make([]float32, 0)
@@ -208,9 +206,9 @@ func (n *Network) Train(trainSet [][]float32, learningRate float32, epochs int, 
 			sumError += error
 
 			// Backwards propagating the error.
-			n.BackPropagate(expected)
+			n.backPropagate(expected)
 			// Updating the weight of each neuron of each layer.
-			n.UpdateWeights(row, learningRate)
+			n.updateWeights(row, learningRate)
 		}
 
 		fmt.Printf("+Epoch: %d, Learning rate: %.2f, Error: %.2f", i, learningRate, sumError)
@@ -221,7 +219,7 @@ func (n *Network) Train(trainSet [][]float32, learningRate float32, epochs int, 
 // Given an input row, it predicts the output categorization.
 // -Input row: An entry to predict the category.
 func (n *Network) Predict(row []float32) int {
-	outputs := n.ForwardPropagate(row)
+	outputs := n.forwardPropagate(row)
 	fmt.Print("Predicted outputs: ")
 	fmt.Println(outputs)
 
@@ -422,7 +420,7 @@ func CreateNetwork(inputNeuronsCount int, hiddenLayerNeuronsCount int, outputLay
 // -Input n: A network.
 // -Input row: An entry row of the dataset array.
 // -Output: The final output of the network.
-func ForwardPropagate(n *Network, row []float32) []float32 {
+func forwardPropagate(n *Network, row []float32) []float32 {
 	inputs := row
 
 	hiddenLayer := n.HiddenLayer
@@ -433,8 +431,7 @@ func ForwardPropagate(n *Network, row []float32) []float32 {
 	hiddenNeurons := hiddenLayer.Neurons
 
 	for i := 0; i < len(hiddenNeurons); i++ {
-		activation := Activate(&hiddenNeurons[i], inputs)
-		output := Output(activation)
+		output := Transfer(&hiddenNeurons[i], inputs)
 
 		hiddenNeurons[i].Output = output
 
@@ -448,8 +445,7 @@ func ForwardPropagate(n *Network, row []float32) []float32 {
 	outputNeurons := outputLayer.Neurons
 
 	for j := 0; j < len(outputNeurons); j++ {
-		activation := Activate(&outputNeurons[j], inputs)
-		output := Output(activation)
+		output := Transfer(&outputNeurons[j], inputs)
 
 		outputNeurons[j].Output = output
 
@@ -465,7 +461,7 @@ func ForwardPropagate(n *Network, row []float32) []float32 {
 // in order let each network layer to update it's neuron weights.
 // -Input n: A network.
 // -Input expected: Is the array of the expected output values.
-func BackPropagate(n *Network, expected []float32) {
+func backPropagate(n *Network, expected []float32) {
 	outputLayerError := make([]float32, 0)
 
 	for i := 0; i < len(n.OutputLayer.Neurons); i++ {
@@ -474,7 +470,7 @@ func BackPropagate(n *Network, expected []float32) {
 	}
 
 	for i := 0; i < len(n.OutputLayer.Neurons); i++ {
-		n.OutputLayer.Neurons[i].Delta = outputLayerError[i] * OutputDerivative(n.OutputLayer.Neurons[i].Output)
+		n.OutputLayer.Neurons[i].Delta = outputLayerError[i] * outputDerivative(n.OutputLayer.Neurons[i].Output)
 	}
 
 	hiddenLayerErrors := make([]float32, 0)
@@ -489,7 +485,7 @@ func BackPropagate(n *Network, expected []float32) {
 	}
 
 	for i := 0; i < len(n.HiddenLayer.Neurons); i++ {
-		n.HiddenLayer.Neurons[i].Delta = hiddenLayerErrors[i] * OutputDerivative(n.HiddenLayer.Neurons[i].Output)
+		n.HiddenLayer.Neurons[i].Delta = hiddenLayerErrors[i] * outputDerivative(n.HiddenLayer.Neurons[i].Output)
 	}
 }
 
@@ -497,7 +493,7 @@ func BackPropagate(n *Network, expected []float32) {
 // -Input n: A network.
 // -Input row: The training data set entry row.
 // -Input learingRate: The rate of the neuron weight adaptation.
-func UpdateWeights(n *Network, row []float32, learningRate float32) {
+func updateWeights(n *Network, row []float32, learningRate float32) {
 	inputs := row[0:(len(row) - 1)]
 
 	for i := 0; i < len(n.HiddenLayer.Neurons); i++ {
@@ -538,7 +534,7 @@ func Train(n *Network, trainSet [][]float32, learningRate float32, epochs int, o
 
 		for j := 0; j < len(trainSet); j++ {
 			row := trainSet[j]
-			outputs := n.ForwardPropagate(row)
+			outputs := forwardPropagate(n, row)
 
 			expected := make([]float32, 0)
 			for k := 0; k < outputCount; k++ {
@@ -559,8 +555,8 @@ func Train(n *Network, trainSet [][]float32, learningRate float32, epochs int, o
 			}
 			sumError += error
 
-			n.BackPropagate(expected)
-			n.UpdateWeights(row, learningRate)
+			backPropagate(n, expected)
+			updateWeights(n, row, learningRate)
 		}
 
 		fmt.Printf("+Epoch: %d, Learning rate: %.2f, Error: %.2f", i, learningRate, sumError)
@@ -572,7 +568,7 @@ func Train(n *Network, trainSet [][]float32, learningRate float32, epochs int, o
 // -Input n: A network.
 // -Input row: An entry to predict the category.
 func Predict(n *Network, row []float32) int {
-	outputs := n.ForwardPropagate(row)
+	outputs := forwardPropagate(n, row)
 	fmt.Print("Predicted outputs: ")
 	fmt.Println(outputs)
 
@@ -737,6 +733,6 @@ func Import(n *Network, hiddenFilePath string, outputFilePath string) {
 }
 
 // Calculates the output derivative/slope.
-func OutputDerivative(output float32) float32 {
+func outputDerivative(output float32) float32 {
 	return output * (1.0 - output)
 }

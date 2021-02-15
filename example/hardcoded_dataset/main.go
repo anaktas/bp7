@@ -40,7 +40,7 @@ func main() {
 	fmt.Println(network)
 
 
-	network.Train(dataSet, 0.2, 10000, 2)
+	network.Train(dataSet, 0.2, 1000, 2)
 
 	fmt.Println("+++++++++++++++++++++++++++++++++++++")
 	fmt.Print("Network after training propagation: ")
